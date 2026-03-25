@@ -1,0 +1,24 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/

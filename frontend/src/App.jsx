@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/v1'
 const API_URL = RAW_API_URL.endsWith('/') ? RAW_API_URL.slice(0, -1) : RAW_API_URL
 
 function App() {
@@ -36,7 +36,7 @@ function App() {
   }
 
   const handleAuth = async (isLogin) => {
-    const endpoint = isLogin ? '/v1/auth/login' : '/v1/auth/register'
+    const endpoint = isLogin ? '/auth/login' : '/auth/register'
     const payload = { email, password }
 
     try {
@@ -73,7 +73,7 @@ function App() {
 
   const fetchTasks = async () => {
     try {
-      const res = await fetch(`${API_URL}/v1/tasks/`, {
+      const res = await fetch(`${API_URL}/tasks/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!res.ok) {
@@ -92,7 +92,7 @@ function App() {
     if (loading) return
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/v1/tasks/`, {
+      const res = await fetch(`${API_URL}/tasks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,8 +114,7 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/v1/tasks/${id}`, {
-        method: 'DELETE',
+      const res = await fetch(`${API_URL}/tasks/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!res.ok) throw new Error('Failed to delete task')
@@ -129,8 +128,7 @@ function App() {
   const updateTaskStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'pending' ? 'completed' : 'pending'
     try {
-      const res = await fetch(`${API_URL}/v1/tasks/${id}`, {
-        method: 'PUT',
+      const res = await fetch(`${API_URL}/tasks/${id}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`

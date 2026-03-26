@@ -73,7 +73,7 @@ function App() {
 
   const fetchTasks = async () => {
     try {
-      const res = await fetch(`${API_URL}/tasks/`, {
+      const res = await fetch(`${API_URL}/v1/tasks/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!res.ok) {
@@ -92,7 +92,7 @@ function App() {
     if (loading) return
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/tasks/`, {
+      const res = await fetch(`${API_URL}/v1/tasks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,8 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/tasks/${id}`, {
+      const res = await fetch(`${API_URL}/v1/tasks/${id}`, {
+        method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!res.ok) throw new Error('Failed to delete task')
@@ -128,7 +129,8 @@ function App() {
   const updateTaskStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'pending' ? 'completed' : 'pending'
     try {
-      const res = await fetch(`${API_URL}/tasks/${id}`, {
+      const res = await fetch(`${API_URL}/v1/tasks/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`

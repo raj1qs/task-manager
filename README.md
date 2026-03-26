@@ -59,6 +59,13 @@ A secure, scalable REST API with JWT authentication and role-based access, paire
 | Swagger Docs | https://task-manager-production-e77e.up.railway.app/docs |
 | Frontend UI | https://task-manager-phi-liart.vercel.app |
 
+### Demo Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@taskmanager.com` | `Admin@123` |
+| User | `user@taskmanager.com` | `User@123` |
+
 ---
 
 ## 💻 Local Setup

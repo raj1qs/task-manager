@@ -1,34 +1,69 @@
-# Full-Stack Task Manager
+# Task Manager — Backend Developer Intern Assignment
 
-A secure, scalable REST API and React frontend built as a complete Task Management solution. This project demonstrates backend engineering best practices including JWT authentication, solid database architecture, and security, paired with a snappy frontend UI.
+A secure, scalable REST API with JWT authentication and role-based access, paired with a minimal React frontend. Built as a complete submission for the Backend Developer Internship Assignment.
+
+---
+
+## ✅ Assignment Requirements Coverage
+
+### Backend (Primary Focus)
+
+| Requirement | Implementation |
+|---|---|
+| User registration & login with password hashing | `POST /v1/auth/register` and `POST /v1/auth/login` using `bcrypt` via `passlib` |
+| JWT Authentication | `python-jose` issues signed JWTs; all task routes require `Authorization: Bearer <token>` |
+| Role-based access (user vs admin) | `role` column on User model; `GET /v1/tasks/admin/all` restricted to admin users via 403 guard |
+| CRUD APIs for a secondary entity (Tasks) | Full Create, Read, Update, Delete on `/v1/tasks/` |
+| API Versioning | All routes prefixed with `/v1` |
+| Error handling & validation | Pydantic schemas for request validation; HTTP exceptions with correct status codes (400, 401, 403, 404) |
+| API Documentation (Swagger) | Auto-generated at `/docs` via FastAPI |
+| Database schema (PostgreSQL) | Neon PostgreSQL via SQLAlchemy ORM; UUID primary keys on all models |
+
+### Frontend (Supportive)
+
+| Requirement | Implementation |
+|---|---|
+| React.js UI | Built with React + Vite + Tailwind CSS |
+| Register & Log In users | Full auth flow with form validation and error messages |
+| Protected dashboard (JWT required) | Dashboard only renders when a valid JWT is in `localStorage`; auto-logout on 401 |
+| CRUD actions on tasks | Add task, toggle completion status, delete task |
+| Error/success messages from API | Toast notifications shown for all API responses |
+
+### Security & Scalability
+
+| Requirement | Implementation |
+|---|---|
+| Secure JWT handling | UUID stored in `sub` claim (not email); token validated on every protected request |
+| Input sanitization & validation | Pydantic's `EmailStr` and field validators on all schemas |
+| UUID primary keys | Prevents enumeration attacks on user and task IDs |
+| Scalable project structure | Routes, models, schemas, dependencies, and core utilities are fully separated |
+| Docker deployment | `Dockerfile` provided; backend is containerized and deployed on Railway |
+| Scalability note | See section below |
+
+---
 
 ## 🚀 Tech Stack
-- **Backend:** Python, FastAPI, SQLAlchemy ORM, PostgreSQL (Neon), Passlib (bcrypt), python-jose (JWT)
+
+- **Backend:** Python 3.11, FastAPI, SQLAlchemy ORM, PostgreSQL (Neon), Passlib (bcrypt), python-jose
 - **Frontend:** React.js, Vite, Tailwind CSS
-- **Database:** PostgreSQL
+- **Database:** PostgreSQL with UUID primary keys
+- **Deployment:** Railway (Docker), Vercel (Frontend)
 
 ---
 
-## 🌟 Core Features
+## 🌐 Live Deployment
 
-### Backend (FastAPI)
-- **Authentication & Security:** Secure JWT-based user authentication. Passwords hashed using `bcrypt` preventing plain-text vulnerabilities.
-- **Relational Data & ORM:** PostgreSQL database integration using SQLAlchemy. UUIDs utilized for secure, non-iterable primary keys.
-- **RESTful CRUD Operations:** Full task management (Create, Read, Update, Delete) restricted strictly to the authenticated task owner.
-- **Interactive Documentation:** Auto-generated Swagger capabilities built directly into the framework.
-
-### Frontend (React + Vite)
-- **Auth Flow:** Fast and responsive Login and Registration flows.
-- **Dashboard:** Protected workspace enforcing JWT token presence.
-- **Interactive Task Management:** Clean UI to instantly add tasks, toggle completion status, and securely delete tasks using the backend API.
-- **Dynamic Feedback:** Realtime error/success messages handled cleanly from the HTTP layer.
+| Service | URL |
+|---|---|
+| Backend API | https://task-manager-production-e77e.up.railway.app |
+| Swagger Docs | https://task-manager-production-e77e.up.railway.app/docs |
+| Frontend UI | https://task-manager-phi-liart.vercel.app |
 
 ---
 
-## 💻 Local Setup Instructions
+## 💻 Local Setup
 
-### 1. Backend Setup
-Navigate into the backend directory and set up your virtual environment:
+### 1. Backend
 
 ```bash
 cd backend
@@ -37,39 +72,80 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `backend/` directory containing your variables:
+Create `backend/.env`:
 ```env
-DATABASE_URL=postgresql://your_database_connection_url_here
-SECRET_KEY=supersecretkey
+DATABASE_URL=postgresql://your_connection_string_here
+SECRET_KEY=your_secret_key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-Start the FastAPI server:
+Start the server:
 ```bash
 uvicorn main:app --reload
 ```
-The backend will run at `http://127.0.0.1:8000`. You can access the **Swagger API Documentation** at `http://127.0.0.1:8000/docs`.
 
-### 2. Frontend Setup
-Open a new terminal, navigate to the frontend directory, and install the dependencies:
+API available at `http://127.0.0.1:8000` | Swagger at `http://127.0.0.1:8000/docs`
+
+### 2. Frontend
 
 ```bash
 cd frontend
 npm install
-```
-
-Start the Vite development server:
-```bash
 npm run dev
 ```
-The frontend will run at `http://localhost:5173`. Make sure your backend is running so the frontend can fetch data!
+
+Frontend available at `http://localhost:5173`
+
+---
+
+## 📡 API Endpoints
+
+### Auth (`/v1/auth`)
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `POST` | `/v1/auth/register` | Register a new user | No |
+| `POST` | `/v1/auth/login` | Login and receive JWT | No |
+| `GET` | `/v1/auth/me` | Get current user profile | Yes |
+
+### Tasks (`/v1/tasks`)
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `GET` | `/v1/tasks/` | Get all tasks for current user | Yes (user) |
+| `POST` | `/v1/tasks/` | Create a new task | Yes (user) |
+| `GET` | `/v1/tasks/{task_id}` | Get a specific task | Yes (user) |
+| `PUT` | `/v1/tasks/{task_id}` | Update a task | Yes (user) |
+| `DELETE` | `/v1/tasks/{task_id}` | Delete a task | Yes (user) |
+| `GET` | `/v1/tasks/admin/all` | Get all tasks in database | Yes (admin only) |
+
+---
+
+## 🗄️ Database Schema
+
+### User
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID | Primary key, auto-generated |
+| `email` | String | Unique, indexed |
+| `hashed_password` | String | bcrypt hashed |
+| `role` | String | `user` or `admin`, default: `user` |
+| `created_at` | DateTime | Auto-set on creation |
+
+### Task
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID | Primary key, auto-generated |
+| `title` | String | Required |
+| `description` | String | Optional |
+| `status` | String | `pending` or `completed`, default: `pending` |
+| `owner_id` | UUID | Foreign key → User.id |
+| `created_at` | DateTime | Auto-set on creation |
 
 ---
 
 ## 📈 Scalability & Architecture Note
-This monolithic application was structured specifically with scalability in mind:
 
-1. **Stateless Authentication:** By leveraging JWT tokens rather than server-side session cookies, the backend remains entirely stateless. This effectively means we can deploy multiple, identical API instances behind a **Load Balancer** without worrying about session replication or sticky routing.
-2. **Decoupling (Microservice Readiness):** The frontend and backend repo are completely decoupled. The frontend communicates strictly via REST APIs over CORS. If the backend scales into microservices later (e.g. separating the `Auth` service from the `Task` service), the frontend simply shifts its targeted API URLs.
-3. **Extensible Caching (Future Scope):** Because the architecture uses standard dependency injection (`Depends(get_db)`), we can easily introduce a **Redis** caching layer dependency. For heavy read loads to the `/tasks/` endpoint, we could cache the JSON response using the user ID as a key.
+1. **Stateless Auth:** JWT tokens eliminate server-side sessions. Multiple backend instances can run behind a load balancer with no session replication.
+2. **Microservice-Ready:** Frontend and backend are fully decoupled via REST + CORS. The auth service and task service can be split into independent microservices without changing the frontend.
+3. **Extensible Caching:** The dependency injection pattern (`Depends(get_db)`) makes it straightforward to introduce a Redis caching layer for read-heavy endpoints like `GET /v1/tasks/`.
+4. **Docker:** The backend ships with a `Dockerfile` enabling consistent, portable deployments across any cloud provider.

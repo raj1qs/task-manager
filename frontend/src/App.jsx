@@ -37,9 +37,7 @@ function App() {
 
   const handleAuth = async (isLogin) => {
     const endpoint = isLogin ? '/v1/auth/login' : '/v1/auth/register'
-    const payload = isLogin 
-      ? { email, password } 
-      : { email, password }
+    const payload = { email, password }
 
     try {
       const res = await fetch(`${API_URL}${endpoint}`, {
@@ -47,8 +45,10 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Authentication failed')
+      const text = await res.text()
+      let data = {}
+      try { data = JSON.parse(text) } catch { data = { detail: text } }
+      if (!res.ok) throw new Error(data.detail || `Error ${res.status}`)
       
       if (isLogin) {
         setToken(data.access_token)

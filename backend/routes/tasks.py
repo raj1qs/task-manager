@@ -9,7 +9,13 @@ from models.user import User
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskResponse
 from dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/v1/tasks", tags=["tasks"])
+
+@router.get("/admin/all", response_model=List[TaskResponse])
+def get_all_tasks_admin(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return db.query(Task).all()
 
 @router.post("/", response_model=TaskResponse)
 def create_task(task_in: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

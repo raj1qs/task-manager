@@ -11,6 +11,7 @@ function App() {
   const [tasks, setTasks] = useState([])
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDesc, setTaskDesc] = useState('')
+  const [loading, setLoading] = useState(false)
   
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -87,6 +88,8 @@ function App() {
 
   const createTask = async (e) => {
     e.preventDefault()
+    if (loading) return
+    setLoading(true)
     try {
       const res = await fetch(`${API_URL}/tasks/`, {
         method: 'POST',
@@ -103,6 +106,8 @@ function App() {
       fetchTasks()
     } catch (err) {
       showMessage(err.message, true)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -218,8 +223,12 @@ function App() {
                   placeholder="Description (optional)" 
                   className="flex-1 px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
                 />
-                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-6 font-medium rounded transition-colors">
-                  Add
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className={`${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white px-6 font-medium rounded transition-colors`}
+                >
+                  {loading ? 'Adding...' : 'Add'}
                 </button>
               </div>
             </form>
